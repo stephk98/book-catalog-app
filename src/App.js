@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import BookList from './components/BookList';
 import AddBookForm from "./components/AddBookForm";
 import EditBookForm from "./components/EditBookForm";
+import SearchBook from "./components/SearchBook";
 
 function App() {
   const [books, setBooks] = useState([]);
@@ -42,9 +43,28 @@ function App() {
 
   };
 
+  const handleBookSelected = async (bookFromSearch) => {
+  try {
+    const response = await fetch("http://localhost:8080/api/books", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(bookFromSearch),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to add book");
+    }
+    const savedBook = await response.json();
+    setBooks([...books, savedBook]);
+  } catch (error) {
+    console.error("Error adding book from search:", error);
+    alert("Failed to add book from search");
+  }
+};
+
   return (
     <div className="container my-4">
       <h1>My Book Catalog</h1>
+      <SearchBook onBookSelected={handleBookSelected} />
       {selectedBook && (
         <EditBookForm
         book={selectedBook}
